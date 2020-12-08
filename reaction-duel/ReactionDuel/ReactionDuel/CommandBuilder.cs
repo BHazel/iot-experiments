@@ -52,9 +52,8 @@ namespace BWHazel.Games.ReactionDuel
                     this.CommandValues.Player1Name = playerOne;
                     this.CommandValues.Player2Name = playerTwo;
 
-                    System.Console.WriteLine(device);
-                    System.Console.WriteLine(playerOne);
-                    System.Console.WriteLine(playerTwo);
+                    Game game = new(this.CommandValues);
+                    game.Start();
                 }
             );
 
