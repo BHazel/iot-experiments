@@ -1,12 +1,7 @@
-﻿using System;
+﻿using System.CommandLine;
+using BWHazel.Games.ReactionDuel;
 
-namespace ReactionDuel
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            Console.WriteLine("Hello World!");
-        }
-    }
-}
+CommandBuilder commandBuilder = new(new CommandValues());
+RootCommand rootCommand = commandBuilder.BuildCommandStructure();
+
+return rootCommand.InvokeAsync(args).Result;
