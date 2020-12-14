@@ -1,4 +1,5 @@
-﻿using static System.Console;
+﻿using System;
+using static System.Console;
 using System.IO.Ports;
 
 namespace BWHazel.Games.ReactionDuel
@@ -43,6 +44,12 @@ namespace BWHazel.Games.ReactionDuel
         public SerialPort DeviceUsbPort { get; set; }
 
         /// <summary>
+        /// Gets or sets the random number generator.
+        /// </summary>
+        public Random RandomNumberGenerator { get; set; } =
+            new Random(DateTime.Now.Millisecond);
+
+        /// <summary>
         /// Gets or sets a value indicating if a handshake has been successfully
         /// established with the USB device.
         /// </summary>
@@ -72,6 +79,12 @@ namespace BWHazel.Games.ReactionDuel
                     WriteLine("Starting Game...");
                     this.DeviceUsbPort.WriteLine("rxn-duel:ready");
                     while (this.IsDuelRunning is not true) { };
+
+                    double duelLength = this.CreateDuelLength();
+                    WriteLine(duelLength);
+                    DateTime duelStartTime = DateTime.Now;
+                    while (this.GetDuelRunTime(duelStartTime) <= duelLength) { };
+                    WriteLine("GO!");
 
                     this.ResetGame();
                 }
@@ -153,6 +166,26 @@ namespace BWHazel.Games.ReactionDuel
                 playGameRequest.Trim().ToUpper() != "N");
 
             return playGameRequest.Trim().ToUpper() == "Y" ? true : false;
+        }
+
+        /// <summary>
+        /// Create the duel length.
+        /// </summary>
+        /// <returns>The duel length in seconds.</returns>
+        private double CreateDuelLength()
+        {
+            return Convert.ToDouble(this.RandomNumberGenerator.Next(1, 10));
+        }
+
+        /// <summary>
+        /// Gets the current run time of the duel.
+        /// </summary>
+        /// <param name="duelStartTime">The duel start time.</param>
+        /// <returns>The current run time of the duel in seconds.</returns>
+        private double GetDuelRunTime(DateTime duelStartTime)
+        {
+            TimeSpan timeSinceStart = DateTime.Now - duelStartTime;
+            return timeSinceStart.TotalSeconds;
         }
 
         /// <summary>
