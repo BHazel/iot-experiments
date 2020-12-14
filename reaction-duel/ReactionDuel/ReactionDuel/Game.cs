@@ -128,6 +128,10 @@ namespace BWHazel.Games.ReactionDuel
             this.DeviceUsbPort.WriteLine("rxn-duel:handshake");
         }
 
+        /// <summary>
+        /// Request input from the user on whether to start a new game.
+        /// </summary>
+        /// <returns><c>true</c> if a new game should start, otherwise <c>false</c>.</returns>
         private bool RequestGameStart()
         {
             string playGameRequest = string.Empty;
