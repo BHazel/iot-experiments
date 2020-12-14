@@ -43,6 +43,12 @@ namespace BWHazel.Games.ReactionDuel
         public SerialPort DeviceUsbPort { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating if a handshake has been successfully
+        /// established with the USB device.
+        /// </summary>
+        public bool IsHandshakeEstablished { get; set; }
+
+        /// <summary>
         /// Starts and runs the main game loop.
         /// </summary>
         public void Start()
@@ -52,7 +58,14 @@ namespace BWHazel.Games.ReactionDuel
             try
             {
                 this.ConnectUsb();
-                ReadKey();
+                this.InitiateHandshakeUsb();
+
+                while (this.IsHandshakeEstablished is not true) { };
+
+                while (this.RequestGameStart())
+                {
+                    WriteLine("Starting Game...");
+                }
             }
             finally
             {
@@ -108,6 +121,29 @@ namespace BWHazel.Games.ReactionDuel
         }
 
         /// <summary>
+        /// Initiates a handshake with the USB device for use with Reaction Duel.
+        /// </summary>
+        private void InitiateHandshakeUsb()
+        {
+            WriteLine($"Initiating handshake with USB device {this.DeviceUsbId}...");
+            this.DeviceUsbPort.WriteLine("rxn-duel:handshake");
+        }
+
+        private bool RequestGameStart()
+        {
+            string playGameRequest = string.Empty;
+
+            do
+            {
+                playGameRequest = this.RequestInput("Y", "Ready to play? (Y/N)");
+            }
+            while (playGameRequest.Trim().ToUpper() != "Y" &&
+                playGameRequest.Trim().ToUpper() != "N");
+
+            return playGameRequest.Trim().ToUpper() == "Y" ? true : false;
+        }
+
+        /// <summary>
         /// Close USB connection.
         /// </summary>
         private void DisconnectUsb()
@@ -142,8 +178,23 @@ namespace BWHazel.Games.ReactionDuel
         private void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
         {
             SerialPort serialPort = (SerialPort)sender;
-            string receivedData = serialPort.ReadLine();
+            string receivedData = serialPort.ReadLine().Trim();
+
+            if (receivedData == "rxn-duel:ack")
+            {
+                this.HandleHandshakeEstablished();
+            }
+
             WriteLine(receivedData);
+        }
+
+        /// <summary>
+        /// Handles a successful handshake with the USB device.
+        /// </summary>
+        private void HandleHandshakeEstablished()
+        {
+            WriteLine("Handshake successful.");
+            this.IsHandshakeEstablished = true;
         }
     }
 }
