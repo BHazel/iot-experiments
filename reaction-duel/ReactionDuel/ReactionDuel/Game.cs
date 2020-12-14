@@ -78,17 +78,15 @@ namespace BWHazel.Games.ReactionDuel
         /// </summary>
         private void SetPlayerNames()
         {
-            if (string.IsNullOrWhiteSpace(this.CommandValues.Player1Name))
-            {
-                this.Player1Name =
-                    this.RequestInput("P1", "Player 1 Name");
-            }
+            this.Player1Name =
+                string.IsNullOrWhiteSpace(this.CommandValues.Player1Name)
+                ? this.RequestInput("P1", "Player 1 Name")
+                : this.CommandValues.Player1Name;
 
-            if (string.IsNullOrWhiteSpace(this.CommandValues.Player2Name))
-            {
-                this.Player2Name =
-                    this.RequestInput("P2", "Player 2 Name");
-            }
+            this.Player2Name =
+                string.IsNullOrWhiteSpace(this.CommandValues.Player2Name)
+                ? this.RequestInput("P2", "Player 2 Name")
+                : this.CommandValues.Player2Name;
         }
 
         /// <summary>
@@ -96,11 +94,12 @@ namespace BWHazel.Games.ReactionDuel
         /// </summary>
         private void SetDeviceUsbId()
         {
-            while (string.IsNullOrWhiteSpace(this.CommandValues.DeviceId) &&
-                string.IsNullOrWhiteSpace(this.DeviceUsbId))
+            while (string.IsNullOrWhiteSpace(this.DeviceUsbId))
             {
                 this.DeviceUsbId =
-                    this.RequestInput("", "Device USB ID");
+                    string.IsNullOrWhiteSpace(this.CommandValues.DeviceId)
+                    ? this.RequestInput("", "Device USB ID")
+                    : this.CommandValues.DeviceId;
             }
         }
 
