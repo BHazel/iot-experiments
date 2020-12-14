@@ -81,10 +81,9 @@ namespace BWHazel.Games.ReactionDuel
                     while (this.IsDuelRunning is not true) { };
 
                     double duelLength = this.CreateDuelLength();
-                    WriteLine(duelLength);
                     DateTime duelStartTime = DateTime.Now;
                     while (this.GetDuelRunTime(duelStartTime) <= duelLength) { };
-                    WriteLine("GO!");
+                    this.DeviceUsbPort.WriteLine("rxn-duel:go");
 
                     this.ResetGame();
                 }
@@ -241,6 +240,11 @@ namespace BWHazel.Games.ReactionDuel
             {
                 this.HandleDuelStart();
             }
+            else if (receivedData.StartsWith("rxn-duel:early-"))
+            {
+                string player = receivedData.Substring(15);
+                this.HandleDuelEarlyPlayer(player);
+            }
 
             WriteLine(receivedData);
         }
@@ -261,6 +265,15 @@ namespace BWHazel.Games.ReactionDuel
         {
             WriteLine("Duel started.");
             this.IsDuelRunning = true;
+        }
+
+        /// <summary>
+        /// Handles a player declaring too early.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        private void HandleDuelEarlyPlayer(string player)
+        {
+            WriteLine($"Too early {player}, keep going!");
         }
     }
 }
