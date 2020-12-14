@@ -49,6 +49,11 @@ namespace BWHazel.Games.ReactionDuel
         public bool IsHandshakeEstablished { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating if a duel is running.
+        /// </summary>
+        public bool IsDuelRunning { get; set; }
+
+        /// <summary>
         /// Starts and runs the main game loop.
         /// </summary>
         public void Start()
@@ -65,6 +70,10 @@ namespace BWHazel.Games.ReactionDuel
                 while (this.RequestGameStart())
                 {
                     WriteLine("Starting Game...");
+                    this.DeviceUsbPort.WriteLine("rxn-duel:ready");
+                    while (this.IsDuelRunning is not true) { };
+
+                    this.ResetGame();
                 }
             }
             finally
@@ -98,7 +107,7 @@ namespace BWHazel.Games.ReactionDuel
             {
                 this.DeviceUsbId =
                     string.IsNullOrWhiteSpace(this.CommandValues.DeviceId)
-                    ? this.RequestInput("", "Device USB ID")
+                    ? this.RequestInput(string.Empty, "Device USB ID")
                     : this.CommandValues.DeviceId;
             }
         }
@@ -147,6 +156,14 @@ namespace BWHazel.Games.ReactionDuel
         }
 
         /// <summary>
+        /// Resets the game environment.
+        /// </summary>
+        private void ResetGame()
+        {
+            this.IsDuelRunning = false;
+        }
+
+        /// <summary>
         /// Close USB connection.
         /// </summary>
         private void DisconnectUsb()
@@ -187,6 +204,10 @@ namespace BWHazel.Games.ReactionDuel
             {
                 this.HandleHandshakeEstablished();
             }
+            else if (receivedData == "rxn-duel:start")
+            {
+                this.HandleDuelStart();
+            }
 
             WriteLine(receivedData);
         }
@@ -198,6 +219,15 @@ namespace BWHazel.Games.ReactionDuel
         {
             WriteLine("Handshake successful.");
             this.IsHandshakeEstablished = true;
+        }
+
+        /// <summary>
+        /// Handles the start of a duel.
+        /// </summary>
+        private void HandleDuelStart()
+        {
+            WriteLine("Duel started.");
+            this.IsDuelRunning = true;
         }
     }
 }
