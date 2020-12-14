@@ -1,4 +1,5 @@
 ﻿using static System.Console;
+using System.IO.Ports;
 
 namespace BWHazel.Games.ReactionDuel
 {
@@ -37,16 +38,26 @@ namespace BWHazel.Games.ReactionDuel
         public string DeviceUsbId { get; set; }
 
         /// <summary>
+        /// Gets or sets the device USB port.
+        /// </summary>
+        public SerialPort DeviceUsbPort { get; set; }
+
+        /// <summary>
         /// Starts and runs the main game loop.
         /// </summary>
         public void Start()
         {
             this.SetPlayerNames();
             this.SetDeviceUsbId();
-
-            WriteLine(this.CommandValues.Player1Name);
-            WriteLine(this.CommandValues.Player2Name);
-            WriteLine(this.CommandValues.DeviceId);
+            try
+            {
+                this.ConnectUsb();
+                ReadKey();
+            }
+            finally
+            {
+                this.DisconnectUsb();
+            }
         }
 
         /// <summary>
@@ -72,11 +83,37 @@ namespace BWHazel.Games.ReactionDuel
         /// </summary>
         private void SetDeviceUsbId()
         {
-            if (string.IsNullOrWhiteSpace(this.CommandValues.DeviceId))
+            while (string.IsNullOrWhiteSpace(this.CommandValues.DeviceId) &&
+                string.IsNullOrWhiteSpace(this.DeviceUsbId))
             {
                 this.DeviceUsbId =
                     this.RequestInput("", "Device USB ID");
             }
+        }
+
+        /// <summary>
+        /// Configure and connect to the device via USB.
+        /// </summary>
+        private void ConnectUsb()
+        {
+            WriteLine($"Connecting to USB device {this.DeviceUsbId}...");
+            this.DeviceUsbPort = new(this.DeviceUsbId, 115200);
+            this.DeviceUsbPort.DataReceived += this.OnSerialDataReceived;
+
+            if (this.DeviceUsbPort.IsOpen is not true)
+            {
+                this.DeviceUsbPort.Open();
+                WriteLine("Connection established.");
+            }
+        }
+
+        /// <summary>
+        /// Close USB connection.
+        /// </summary>
+        private void DisconnectUsb()
+        {
+            this.DeviceUsbPort.Close();
+            this.DeviceUsbPort.Dispose();
         }
 
         /// <summary>
@@ -95,6 +132,18 @@ namespace BWHazel.Games.ReactionDuel
             }
 
             return input;
+        }
+
+        /// <summary>
+        /// Handles received data via the USB port.
+        /// </summary>
+        /// <param name="sender">The event source.</param>
+        /// <param name="e">Information about the event.</param>
+        private void OnSerialDataReceived(object sender, SerialDataReceivedEventArgs e)
+        {
+            SerialPort serialPort = (SerialPort)sender;
+            string receivedData = serialPort.ReadLine();
+            WriteLine(receivedData);
         }
     }
 }
