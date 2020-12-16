@@ -89,6 +89,7 @@ namespace BWHazel.Games.ReactionDuel
 
                 while (this.IsHandshakeEstablished is not true) { };
 
+                WriteLine("*** REACTION DUEL! ***");
                 while (this.RequestGameStart())
                 {
                     WriteLine("Starting Game...");
