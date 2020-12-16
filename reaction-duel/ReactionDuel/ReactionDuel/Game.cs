@@ -56,6 +56,11 @@ namespace BWHazel.Games.ReactionDuel
         public bool IsHandshakeEstablished { get; set; }
 
         /// <summary>
+        /// Gets or sets the duel length.
+        /// </summary>
+        public double DuelLength { get; set; }
+
+        /// <summary>
         /// Gets or sets a value indicating if a duel is running.
         /// </summary>
         public bool IsDuelRunning { get; set; }
@@ -64,6 +69,11 @@ namespace BWHazel.Games.ReactionDuel
         /// Gets or sets a vale indicating if a duel has been won.
         /// </summary>
         public bool IsDuelWon { get; set; }
+
+        /// <summary>
+        /// Gets or sets the duel winner.
+        /// </summary>
+        public string DuelWinner { get; set; }
 
         /// <summary>
         /// Starts and runs the main game loop.
@@ -85,12 +95,14 @@ namespace BWHazel.Games.ReactionDuel
                     this.DeviceUsbPort.WriteLine("rxn-duel:ready");
                     while (this.IsDuelRunning is not true) { };
 
-                    double duelLength = this.CreateDuelLength();
+                    this.DuelLength = this.CreateDuelLength();
                     DateTime duelStartTime = DateTime.Now;
-                    while (this.GetDuelRunTime(duelStartTime) <= duelLength) { };
+                    while (this.GetDuelRunTime(duelStartTime) <= this.DuelLength) { };
                     this.DeviceUsbPort.WriteLine("rxn-duel:go");
 
                     while (this.IsDuelWon is not true) { };
+                    WriteLine($"{this.DuelWinner} wins with a reaction of " +
+                        $"{this.GetDuelWinTime(duelStartTime):0.##} seconds!");
 
                     this.ResetGame();
                 }
@@ -195,12 +207,25 @@ namespace BWHazel.Games.ReactionDuel
         }
 
         /// <summary>
+        /// Gets the winning time of the duel.
+        /// </summary>
+        /// <param name="duelStartTime">The duel start time.</param>
+        /// <returns>The winning time of the duel in seconds.</returns>
+        private double GetDuelWinTime(DateTime duelStartTime)
+        {
+            TimeSpan timeSinceStart = DateTime.Now - duelStartTime;
+            return timeSinceStart.TotalSeconds - this.DuelLength;
+        }
+
+        /// <summary>
         /// Resets the game environment.
         /// </summary>
         private void ResetGame()
         {
             this.IsDuelRunning = false;
             this.IsDuelWon = false;
+            this.DuelLength = default;
+            this.DuelWinner = string.Empty;
         }
 
         /// <summary>
@@ -293,7 +318,7 @@ namespace BWHazel.Games.ReactionDuel
         /// <param name="player">The player.</param>
         private void HandleDuelWinner(string player)
         {
-            WriteLine($"{player} wins!");
+            this.DuelWinner = player;
             this.IsDuelWon = true;
         }
     }
