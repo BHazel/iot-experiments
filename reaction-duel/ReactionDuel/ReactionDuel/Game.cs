@@ -61,6 +61,11 @@ namespace BWHazel.Games.ReactionDuel
         public bool IsDuelRunning { get; set; }
 
         /// <summary>
+        /// Gets or sets a vale indicating if a duel has been won.
+        /// </summary>
+        public bool IsDuelWon { get; set; }
+
+        /// <summary>
         /// Starts and runs the main game loop.
         /// </summary>
         public void Start()
@@ -84,6 +89,8 @@ namespace BWHazel.Games.ReactionDuel
                     DateTime duelStartTime = DateTime.Now;
                     while (this.GetDuelRunTime(duelStartTime) <= duelLength) { };
                     this.DeviceUsbPort.WriteLine("rxn-duel:go");
+
+                    while (this.IsDuelWon is not true) { };
 
                     this.ResetGame();
                 }
@@ -193,6 +200,7 @@ namespace BWHazel.Games.ReactionDuel
         private void ResetGame()
         {
             this.IsDuelRunning = false;
+            this.IsDuelWon = false;
         }
 
         /// <summary>
@@ -245,8 +253,11 @@ namespace BWHazel.Games.ReactionDuel
                 string player = receivedData.Substring(15);
                 this.HandleDuelEarlyPlayer(player);
             }
-
-            WriteLine(receivedData);
+            else if (receivedData.StartsWith("rxn-duel:winner-"))
+            {
+                string player = receivedData.Substring(16);
+                this.HandleDuelWinner(player);
+            }
         }
 
         /// <summary>
@@ -274,6 +285,16 @@ namespace BWHazel.Games.ReactionDuel
         private void HandleDuelEarlyPlayer(string player)
         {
             WriteLine($"Too early {player}, keep going!");
+        }
+
+        /// <summary>
+        /// Handles a player winning.
+        /// </summary>
+        /// <param name="player">The player.</param>
+        private void HandleDuelWinner(string player)
+        {
+            WriteLine($"{player} wins!");
+            this.IsDuelWon = true;
         }
     }
 }
