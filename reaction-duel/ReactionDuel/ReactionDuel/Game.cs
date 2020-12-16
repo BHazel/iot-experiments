@@ -309,7 +309,8 @@ namespace BWHazel.Games.ReactionDuel
         /// <param name="player">The player.</param>
         private void HandleDuelEarlyPlayer(string player)
         {
-            WriteLine($"Too early {player}, keep going!");
+            WriteLine($"Too early {this.GetPlayerNameFromId(player)}, " +
+                $"keep going!");
         }
 
         /// <summary>
@@ -318,8 +319,29 @@ namespace BWHazel.Games.ReactionDuel
         /// <param name="player">The player.</param>
         private void HandleDuelWinner(string player)
         {
-            this.DuelWinner = player;
+            this.DuelWinner = this.GetPlayerNameFromId(player);
             this.IsDuelWon = true;
+        }
+
+        /// <summary>
+        /// Gets a player name from its ID from the USB device.
+        /// </summary>
+        /// <param name="playerUsbId">The player ID from the USB device.</param>
+        /// <returns>The player name.</returns>
+        private string GetPlayerNameFromId(string playerUsbId)
+        {
+            if (playerUsbId == "P1")
+            {
+                return this.CommandValues.Player1Name;
+            }
+            else if (playerUsbId == "P2")
+            {
+                return this.CommandValues.Player2Name;
+            }
+            else
+            {
+                return "Unknown Player";
+            }
         }
     }
 }
