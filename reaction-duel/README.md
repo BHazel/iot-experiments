@@ -41,7 +41,7 @@ dotnet run -- \
 
 * The application will attempt to connect to the USB device and perform a bespoke handshake to ensure it works.  A successful set up looks like the following:
 
-```sh
+```
 Connecting to USB device /dev/tty.usbmodem12345...
 Connection established.
 Initiating handshake with USB device /dev/tty.usbmodem12345...
