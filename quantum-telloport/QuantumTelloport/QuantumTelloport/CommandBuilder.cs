@@ -1,5 +1,6 @@
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Threading.Tasks;
 
 namespace BWHazel.Apps.QuantumTelloport
 {
@@ -53,7 +54,7 @@ namespace BWHazel.Apps.QuantumTelloport
 
             rootCommand.Description = "Quantum Telloport";
             rootCommand.Handler = CommandHandler.Create<string, int, int, bool>(
-                (api, runTime, pauseTime, simulate) =>
+                async (api, runTime, pauseTime, simulate) =>
                 {
                     this.CommandValues.TelloApiVersion = api;
                     this.CommandValues.TotalRunTime = runTime;
@@ -61,7 +62,7 @@ namespace BWHazel.Apps.QuantumTelloport
                     this.CommandValues.UseSimulator = simulate;
 
                     DronePilot dronePilot = new(this.CommandValues);
-                    dronePilot.Start();
+                    await dronePilot.Start();
                 }
             );
 

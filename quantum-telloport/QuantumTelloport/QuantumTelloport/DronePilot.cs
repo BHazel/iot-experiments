@@ -1,9 +1,14 @@
 using System;
 using static System.Console;
 using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.Quantum.Simulation.Core;
+using Microsoft.Quantum.Simulation.Simulators;
 using TelloCommander.CommandDictionaries;
 using TelloCommander.Commander;
 using TelloCommander.Connections;
+using BWHazel.Apps.QuantumTelloport.Control;
 
 namespace BWHazel.Apps.QuantumTelloport
 {
@@ -14,6 +19,11 @@ namespace BWHazel.Apps.QuantumTelloport
     {
         private static string TakeoffCommand = "takeoff";
         private static string LandCommand = "land";
+        private static string ForwardCommand = "forward";
+        private static string BackCommand = "back";
+        private static string RightCommand = "right";
+        private static string LeftCommand = "left";
+        private static int MinimumDroneDistance = 20;
 
         public DronePilot(CommandValues commandValues)
         {
@@ -36,9 +46,14 @@ namespace BWHazel.Apps.QuantumTelloport
         public DateTime FlightStartTime { get; set; }
 
         /// <summary>
+        /// Gets or sets the quantum simulator.
+        /// </summary>
+        public QuantumSimulator QuantumSimulator { get; set; } = new();
+
+        /// <summary>
         /// Starts and runs the drone flight.
         /// </summary>
-        public void Start()
+        public async Task Start()
         {
             this.DroneCommander = this.InitialiseDroneCommander();
             CancelKeyPress += this.OnConsoleCancelKeyPress;
@@ -49,6 +64,23 @@ namespace BWHazel.Apps.QuantumTelloport
             double totalElapsedTime = 0;
             while (totalElapsedTime <= this.CommandValues.TotalRunTime)
             {
+                long axisQuantumResult = await DetermineAxis.Run(this.QuantumSimulator);
+                long directionQuantumResult = await DetermineDirection.Run(this.QuantumSimulator);
+                long distanceQuantumResult = await DetermineDistance.Run(this.QuantumSimulator);
+                
+                long droneDistance = MinimumDroneDistance + distanceQuantumResult;
+                string droneCommand = (axisQuantumResult, distanceQuantumResult) switch
+                {
+                    (1, 1) => $"{ForwardCommand} {droneDistance}",
+                    (1, 0) => $"{BackCommand} {droneDistance}",
+                    (0, 1) => $"{RightCommand} {droneDistance}",
+                    (0, 0) => $"{LeftCommand} {droneDistance}",
+                    (_, _) => $"{LandCommand}"
+                };
+
+                this.DroneCommander.RunCommand(droneCommand);
+                Thread.Sleep(this.CommandValues.PauseTime * 1000);
+
                 totalElapsedTime = (DateTime.Now - this.FlightStartTime).TotalSeconds;
             }
 
