@@ -25,6 +25,10 @@ namespace BWHazel.Apps.QuantumTelloport
         private static string LeftCommand = "left";
         private static int MinimumDroneDistance = 20;
 
+        /// <summary>
+        /// Initialises a new instance of the <see cref="DronePilot"/> class with <see cref="CommandValues"/> instance.
+        /// </summary>
+        /// <param name="commandValues">The command-line argument values store.</param>
         public DronePilot(CommandValues commandValues)
         {
             this.CommandValues = commandValues;
@@ -55,21 +59,26 @@ namespace BWHazel.Apps.QuantumTelloport
         /// </summary>
         public async Task Start()
         {
+            WriteLine("*** QUANTUM TELLOPORT ***");
+            WriteLine("Initialising drone commander...");
             this.DroneCommander = this.InitialiseDroneCommander();
             CancelKeyPress += this.OnConsoleCancelKeyPress;
             
+            WriteLine("Starting flight...");
             this.FlightStartTime = DateTime.Now;
             this.StartFlight();
 
+            int droneMove = 1;
             double totalElapsedTime = 0;
             while (totalElapsedTime <= this.CommandValues.TotalRunTime)
             {
+                WriteLine($"Starting drone move {droneMove}...");
                 long axisQuantumResult = await DetermineAxis.Run(this.QuantumSimulator);
                 long directionQuantumResult = await DetermineDirection.Run(this.QuantumSimulator);
                 long distanceQuantumResult = await DetermineDistance.Run(this.QuantumSimulator);
                 
                 long droneDistance = MinimumDroneDistance + distanceQuantumResult;
-                string droneCommand = (axisQuantumResult, distanceQuantumResult) switch
+                string droneCommand = (axisQuantumResult, directionQuantumResult) switch
                 {
                     (1, 1) => $"{ForwardCommand} {droneDistance}",
                     (1, 0) => $"{BackCommand} {droneDistance}",
@@ -79,9 +88,12 @@ namespace BWHazel.Apps.QuantumTelloport
                 };
 
                 this.DroneCommander.RunCommand(droneCommand);
+                WriteLine($"Executing command: {droneCommand}...");
                 Thread.Sleep(this.CommandValues.PauseTime * 1000);
 
                 totalElapsedTime = (DateTime.Now - this.FlightStartTime).TotalSeconds;
+                droneMove++;
+                WriteLine($"Total elapsed flight time: {(int)totalElapsedTime}s of {this.CommandValues.TotalRunTime}s");
             }
 
             this.TerminateFlight();
@@ -116,6 +128,7 @@ namespace BWHazel.Apps.QuantumTelloport
         {
             if (this.CommandValues.UseSimulator is true)
             {
+                WriteLine("Creating connection to drone simulator...");
                 return new(IPAddress.Loopback.ToString(),
                     TelloConnection.DefaultTelloPort,
                     ConnectionType.Simulator
@@ -123,6 +136,7 @@ namespace BWHazel.Apps.QuantumTelloport
             }
             else
             {
+                WriteLine("Creating connection to drone...");
                 return new();
             }
         }
@@ -132,7 +146,10 @@ namespace BWHazel.Apps.QuantumTelloport
         /// </summary>
         private void StartFlight()
         {
+            WriteLine("Establishing connection...");
             this.DroneCommander.Connect();
+
+            WriteLine("Taking off...");
             this.DroneCommander.RunCommand(TakeoffCommand);
         }
 

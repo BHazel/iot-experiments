@@ -15,6 +15,8 @@
         H(axis);
 
         let axisMeasured = MResetZ(axis);
+        Message($"AXIS: Qubit Superposition Measurement: {axisMeasured}");
+
         return ResultAsInt(axisMeasured);
     }
 
@@ -33,6 +35,8 @@
         CNOT(control, target);
 
         let entangledMeasured = MultiM([control, target]);
+        Message($"DIRECTION: Qubit Entnaglement Measurements: {entangledMeasured}");
+
         if (entangledMeasured[0] != entangledMeasured[1]) {
             return -1;
         } else {
@@ -55,6 +59,8 @@
         }
 
         let componentsMeasured = MultiM(components);
+        Message($"DISTANCE: Qubit Superposition Measurements: {componentsMeasured}");
+
         return ResultArrayAsInt(componentsMeasured);
     }
 

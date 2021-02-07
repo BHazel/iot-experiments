@@ -18,7 +18,7 @@ namespace BWHazel.Apps.QuantumTelloport
         /// <summary>
         /// The default Tello API version.
         /// </summary>
-        public static string DefaultTelloApiVersion = "1.0.0.3";
+        public static string DefaultTelloApiVersion = "1.3.0.0";
 
         /// <summary>
         /// Gets or sets the total run-time in seconds.
