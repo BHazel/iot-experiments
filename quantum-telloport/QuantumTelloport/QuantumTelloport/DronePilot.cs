@@ -23,6 +23,7 @@ namespace BWHazel.Apps.QuantumTelloport
         private static string BackCommand = "back";
         private static string RightCommand = "right";
         private static string LeftCommand = "left";
+        private static string UnknownCommand = "unknown";
         private static int MinimumDroneDistance = 20;
 
         /// <summary>
@@ -84,8 +85,13 @@ namespace BWHazel.Apps.QuantumTelloport
                     (1, 0) => $"{BackCommand} {droneDistance}",
                     (0, 1) => $"{RightCommand} {droneDistance}",
                     (0, 0) => $"{LeftCommand} {droneDistance}",
-                    (_, _) => $"{LandCommand}"
+                    (_, _) => $"{UnknownCommand}"
                 };
+
+                if (droneCommand == UnknownCommand)
+                {
+                    break;
+                }
 
                 this.DroneCommander.RunCommand(droneCommand);
                 WriteLine($"Executing command: {droneCommand}...");
@@ -158,7 +164,10 @@ namespace BWHazel.Apps.QuantumTelloport
         /// </summary>
         private void TerminateFlight()
         {
+            WriteLine("Landing...");
             this.DroneCommander.RunCommand(LandCommand);
+
+            WriteLine("Disconnecting...");
             this.DroneCommander.Disconnect();
         }
     }
