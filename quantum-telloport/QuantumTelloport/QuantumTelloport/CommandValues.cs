@@ -6,6 +6,21 @@ namespace BWHazel.Apps.QuantumTelloport
     public class CommandValues
     {
         /// <summary>
+        /// The default total run-time.
+        /// </summary>
+        public static int DefaultTotalRunTime = 120;
+        
+        /// <summary>
+        /// The default pause time.
+        /// </summary>
+        public static int DefaultPauseTime = 10;
+        
+        /// <summary>
+        /// The default Tello API version.
+        /// </summary>
+        public static string DefaultTelloApiVersion = "1.0.0.3";
+
+        /// <summary>
         /// Gets or sets the total run-time in seconds.
         /// </summary>
         public int TotalRunTime { get; set; }

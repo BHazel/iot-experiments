@@ -32,14 +32,17 @@ namespace BWHazel.Apps.QuantumTelloport
             {
                 new Option<string>(
                     new[] { "-a", "--api" },
+                    () => CommandValues.DefaultTelloApiVersion,
                     "The Tello API version."
                 ),
                 new Option<int>(
                     new[] { "-r", "--run-time" },
+                    () => CommandValues.DefaultTotalRunTime,
                     "The total run-time in seconds."
                 ),
                 new Option<int>(
                     new[] { "-p", "--pause-time" },
+                    () => CommandValues.DefaultPauseTime,
                     "The pause time between drone commands in seconds."
                 ),
                 new Option<bool>(
@@ -52,12 +55,13 @@ namespace BWHazel.Apps.QuantumTelloport
             rootCommand.Handler = CommandHandler.Create<string, int, int, bool>(
                 (api, runTime, pauseTime, simulate) =>
                 {
-                    System.Console.WriteLine($"API: {api}");
-                    System.Console.WriteLine($"Runtime: {runTime}");
-                    System.Console.WriteLine($"Pause Time: {pauseTime}");
-                    System.Console.WriteLine($"Simulate: {simulate}");
+                    this.CommandValues.TelloApiVersion = api;
+                    this.CommandValues.TotalRunTime = runTime;
+                    this.CommandValues.PauseTime = pauseTime;
+                    this.CommandValues.UseSimulator = simulate;
 
-                    // Start drone process.
+                    DronePilot dronePilot = new(this.CommandValues);
+                    dronePilot.Start();
                 }
             );
 
