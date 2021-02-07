@@ -20,7 +20,7 @@ TelloConnection telloConnection = new(IPAddress.Loopback.ToString(),
     ConnectionType.Simulator
 );
 
-DroneCommander droneCommander = new(telloConnection, commandDictionary);
+DroneCommander droneCommander = new(new TelloConnection(), commandDictionary);
 droneCommander.Connect();
 droneCommander.RunCommand("takeoff");
 
@@ -54,4 +54,5 @@ while (DateTime.Now - startTime <= totalRunTime)
     Thread.Sleep(MovementWaitTime);
 }
 
+droneCommander.RunCommand("land");
 droneCommander.Disconnect();
