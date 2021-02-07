@@ -31,14 +31,28 @@ namespace BWHazel.Apps.QuantumTelloport
         public DroneCommander DroneCommander { get; set; }
 
         /// <summary>
+        /// Gets or sets the flight start time.
+        /// </summary>
+        public DateTime FlightStartTime { get; set; }
+
+        /// <summary>
         /// Starts and runs the drone flight.
         /// </summary>
         public void Start()
         {
             this.DroneCommander = this.InitialiseDroneCommander();
-            this.DroneCommander.Connect();
+            CancelKeyPress += this.OnConsoleCancelKeyPress;
+            
+            this.FlightStartTime = DateTime.Now;
+            this.StartFlight();
 
-            this.DroneCommander.Disconnect();
+            double totalElapsedTime = 0;
+            while (totalElapsedTime <= this.CommandValues.TotalRunTime)
+            {
+                totalElapsedTime = (DateTime.Now - this.FlightStartTime).TotalSeconds;
+            }
+
+            this.TerminateFlight();
         }
 
         /// <summary>
@@ -79,6 +93,15 @@ namespace BWHazel.Apps.QuantumTelloport
             {
                 return new();
             }
+        }
+
+        /// <summary>
+        /// Starts the flight by connecting the drone and taking off.
+        /// </summary>
+        private void StartFlight()
+        {
+            this.DroneCommander.Connect();
+            this.DroneCommander.RunCommand(TakeoffCommand);
         }
 
         /// <summary>
