@@ -1,0 +1,20 @@
+Please recommend a scene, which comprises a set of colours, for a set of Philips Hue smart lights based on the provided location within the home, the provided number of lights and a provided situation.
+The situation should be the primary factor in choosing the colours for the scene, which should be immersive so it feels like the user is in the situation.
+Please ensure the scene is appropriate for the situation, for example, a relaxing scene for a movie night, a bright scene for a party or a neutral scene for work-based activities.
+Please ensure the brightness is appropriate for the situation, for example, a low brightness for a movie night or a high brightness for a party.
+If a colour is provided in the situation please use that colour as the base colour for the scene, however, not all the lights have to be that colour.
+The output should be a JSON object with the following properties:
+* "name": a string property for the scene name.
+* "description": a string property for an explanation of why the colours have been selected for this scene.
+* "colours": a JSON array, one for each light, where each object contains the following properties:
+    * "xy": an object with 2 numeric properties, "x" and "y", corresponding to the X and Y values for the colour in XY colour space.
+    * "rgb": an object with 3 numeric properties, "r", "g" and "b", corresponding to the R, G and B values for the colour in RGB colour space.
+    * "brightness": a numeric property for the brightness value between 0 and 100 where 0 is off and 100 is maximum.
+    * "name": a string property for the colour name.
+Please only respond with the JSON and no additional text.  Additional text is anything that is not the JSON data.
+
++++++
+Lighting Location: {{$location}}
+Number of Lights: {{$lights}}
+Situation: {{$situation}}
++++++
