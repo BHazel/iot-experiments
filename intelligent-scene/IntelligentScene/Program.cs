@@ -139,7 +139,7 @@ do
     WriteLine($"Scene: {scene.Name}");
     WriteLine($"Description: {scene.Description}");
     WriteLine("Lights:");
-    lightSettings.ToList().ForEach(lightSetting => WriteLine($"* {lightSetting.Key.Metadata!.Name}: {lightSetting.Value.Name}"));
+    lightSettings.ToList().ForEach(lightSetting => WriteLine($"- {lightSetting.Key.Metadata!.Name}: {lightSetting.Value.Name}"));
 
     Write("* Press Y to create another scene... *");
     exit = ReadKey().Key != ConsoleKey.Y;
